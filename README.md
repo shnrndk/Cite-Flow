@@ -1,6 +1,6 @@
-# ResearchGraph
+# Cite-Flow
 
-**ResearchGraph** is an interactive visualization tool designed to help researchers explore relationships between academic papers. It constructs a dynamic citation network using data from [OpenAlex](https://openalex.org/), visualizing connections based on direct citations and bibliographic coupling.
+**Cite-Flow** is an interactive visualization tool designed to help researchers explore relationships between academic papers. It constructs a dynamic citation network using data from [OpenAlex](https://openalex.org/), visualizing connections based on direct citations and bibliographic coupling.
 
 ## Features
 

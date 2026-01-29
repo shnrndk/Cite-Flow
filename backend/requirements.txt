@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+networkx
+requests
+openai
+python-multipart
+joblib
+# semanticscholar library might be useful if we want a higher level wrapper, 
+# but for now we'll stick to requests for direct control or use the library if specified. 
+# The user mentioned "Semantic Scholar API (S2AG)", often accessed via `semanticscholar` python lib or direct HTTP.
+# Let's add `semanticscholar` just in case, but we might implement direct calls for fine-grained control.
+semanticscholar

@@ -263,6 +263,12 @@ const App = () => {
       {/* Header Elements */}
       <div className="absolute top-0 left-0 w-full z-10 p-4 pointer-events-none">
 
+        {/* Logo - Top Left */}
+        <div className="pointer-events-auto absolute top-4 left-4 flex items-center gap-2 bg-white/90 backdrop-blur p-2 pr-4 rounded-lg shadow-sm border border-gray-100">
+          <img src="/logo.png" alt="CiteFlow Logo" className="w-8 h-8 rounded-md object-cover" />
+          <span className="font-bold text-xl text-gray-800 tracking-tight">CiteFlow</span>
+        </div>
+
         {/* Search Bar - Centered */}
         <div className="pointer-events-auto absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-xl">
           <div className="flex justify-center">

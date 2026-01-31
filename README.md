@@ -2,7 +2,11 @@
 
 **Cite-Flow** is an interactive visualization tool designed to help researchers explore relationships between academic papers. It constructs a dynamic citation network using data from [OpenAlex](https://openalex.org/), visualizing connections based on direct citations and bibliographic coupling.
 
-<img width="1490" height="772" alt="image" src="https://github.com/user-attachments/assets/dfa989cb-d871-4916-8c63-90cf3110ab76" />
+### Network Mode
+<img width="1493" height="782" alt="image" src="https://github.com/user-attachments/assets/5e9197b1-83e6-4f5f-b932-13fd1f1a72db" />
+
+### Timeline Mode
+<img width="1493" height="782" alt="image" src="https://github.com/user-attachments/assets/6b0700f3-81df-4a0b-82f7-37612ec96908" />
 
 
 ## Features

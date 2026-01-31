@@ -24,5 +24,16 @@ export const api = {
         });
         if (!response.ok) throw new Error("Summarization failed");
         return response.json();
+    },
+    explainAbstract: async (abstract) => {
+        const response = await fetch(`${API_BASE_URL}/explain_abstract`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ abstract: abstract }),
+        });
+        if (!response.ok) throw new Error("Explanation failed");
+        return response.json();
     }
 };

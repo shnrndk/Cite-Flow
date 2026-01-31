@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -46,15 +46,79 @@ const App = () => {
     setSelectedNode(node);
   }, []);
 
+  // Update node styles when selection changes
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((n) => {
+        const isSelected = selectedNode && n.id === selectedNode.id;
+
+        if (isSelected) {
+          return {
+            ...n,
+            style: {
+              ...n.style,
+              background: '#F3E8FF', // Purple 100
+              border: '3px solid #9333EA', // Purple 600
+              boxShadow: '0 0 15px rgba(147, 51, 234, 0.5)',
+              transition: 'all 0.3s ease',
+            },
+          };
+        }
+
+        // Revert to original styling
+        if (n.data.isSeed) {
+          return {
+            ...n,
+            style: {
+              background: "#FFF9C4",
+              border: "2px solid #FBC02D",
+              boxShadow: "0 0 10px rgba(251, 192, 45, 0.5)",
+              fontWeight: "bold",
+              transition: 'all 0.3s ease',
+            },
+          };
+        }
+
+        // Default style for regular nodes
+        return {
+          ...n,
+          style: {
+            // Ensure we clean up any leftover styles
+            background: undefined,
+            border: undefined,
+            boxShadow: undefined,
+            transition: 'all 0.3s ease',
+          },
+        };
+      })
+    );
+  }, [selectedNode, setNodes]);
+
   const closeSidebar = () => setSelectedNode(null);
 
   const [edgeThreshold, setEdgeThreshold] = useState(0);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [isHoverEnabled, setIsHoverEnabled] = useState(true);
 
   // Filter edges based on threshold
   const filteredEdges = edges.filter(edge => {
     const weight = parseFloat(edge.label || "0");
     return weight >= edgeThreshold;
   });
+
+  const onNodeMouseEnter = useCallback((event, node) => {
+    setHoveredNode(node);
+    setTooltipPos({ x: event.clientX, y: event.clientY });
+  }, []);
+
+  const onNodeMouseMove = useCallback((event) => {
+    setTooltipPos({ x: event.clientX, y: event.clientY });
+  }, []);
+
+  const onNodeMouseLeave = useCallback(() => {
+    setHoveredNode(null);
+  }, []);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-50">
@@ -68,23 +132,41 @@ const App = () => {
           </div>
         </div>
 
-        {/* Edge Threshold Slider - Top Right */}
-        <div className="pointer-events-auto absolute top-4 right-4 bg-white/90 backdrop-blur p-4 rounded-lg shadow-md w-64">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Connection Strength: {Math.round(edgeThreshold * 100)}%
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            value={edgeThreshold}
-            onChange={(e) => setEdgeThreshold(parseFloat(e.target.value))}
-            className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>All</span>
-            <span>Strong</span>
+        {/* Settings Panel - Top Right */}
+        <div className="pointer-events-auto absolute top-4 right-4 bg-white/90 backdrop-blur p-4 rounded-lg shadow-md w-64 space-y-4">
+
+          {/* Hover Toggle */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Show Tooltips</span>
+            <button
+              onClick={() => setIsHoverEnabled(!isHoverEnabled)}
+              className={`w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${isHoverEnabled ? 'bg-blue-600' : 'bg-gray-300'}`}
+            >
+              <div className={`w-4 h-4 rounded-full bg-white shadow-sm transform transition-transform duration-200 ease-in-out ${isHoverEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-200"></div>
+
+          {/* Slider */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Connection Strength: {Math.round(edgeThreshold * 100)}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={edgeThreshold}
+              onChange={(e) => setEdgeThreshold(parseFloat(e.target.value))}
+              className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            />
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>All</span>
+              <span>Strong</span>
+            </div>
           </div>
         </div>
       </div>
@@ -96,6 +178,20 @@ const App = () => {
         </div>
       )}
 
+      {/* Tooltip */}
+      {hoveredNode && isHoverEnabled && (
+        <div
+          className="fixed z-50 bg-gray-900 text-white p-3 rounded-lg shadow-xl pointer-events-none max-w-xs transform -translate-x-1/2 -translate-y-[120%]"
+          style={{ left: tooltipPos.x, top: tooltipPos.y }}
+        >
+          <div className="font-bold text-sm mb-1 line-clamp-2">{hoveredNode.data.label}</div>
+          <div className="text-xs text-gray-300 flex justify-between gap-4">
+            <span>{hoveredNode.data.year}</span>
+            <span>{hoveredNode.data.citationCount} Citations</span>
+          </div>
+        </div>
+      )}
+
       {/* Graph Canvas */}
       <div className="flex-1 w-full h-full">
         <ReactFlow
@@ -104,6 +200,9 @@ const App = () => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeClick={onNodeClick}
+          onNodeMouseEnter={onNodeMouseEnter}
+          onNodeMouseMove={onNodeMouseMove}
+          onNodeMouseLeave={onNodeMouseLeave}
           fitView
           attributionPosition="bottom-left"
         >

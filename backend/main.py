@@ -99,6 +99,37 @@ async def summarize_connection_endpoint(request: SummarizeRequest):
         print(f"LLM Error: {e}")
         return {"summary": "Failed to generate summary due to an error."}
 
+class ExplainAbstractRequest(BaseModel):
+    abstract: str
+
+@app.post("/explain_abstract")
+async def explain_abstract_endpoint(request: ExplainAbstractRequest):
+    if not client.api_key:
+        return {"explanation": "OpenAI API Key not found."}
+        
+    prompt = f"""
+    Explain the following research paper abstract in a clear, structured way for a general audience.
+    
+    Structure your response as follows:
+    - **One-sentence Summary**: A high-level overview.
+    - **Key Contributions**: Use bullet points to list the main findings or methods.
+    - **Impact**: Briefly explain why this matters.
+
+    Abstract:
+    {request.abstract}
+    """
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=600
+        )
+        return {"explanation": response.choices[0].message.content}
+    except Exception as e:
+        print(f"LLM Error: {e}")
+        return {"explanation": "Failed to generate explanation."}
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
